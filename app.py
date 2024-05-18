@@ -12,6 +12,13 @@ bills = [
     {"id": "3", "amount": 200.0, "due_date": "2024-05-31", "number": "BILL-003"},
 ]
 
+from flask import redirect
+
+@app.route('/')
+def home():
+    return redirect('/bills')
+
+
 # On server 5001
 @app.route('/bills', methods=['GET'])
 def get_bills():
