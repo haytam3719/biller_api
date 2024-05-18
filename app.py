@@ -5,21 +5,17 @@ import square.client
 
 app = Flask(__name__)
 
-# Exemple : Temporaire
+# Example: Temporary bills data
 bills = [
     {"id": "1", "amount": 100.0, "due_date": "2024-04-30", "number": "BILL-001"},
     {"id": "2", "amount": 150.0, "due_date": "2024-05-15", "number": "BILL-002"},
     {"id": "3", "amount": 200.0, "due_date": "2024-05-31", "number": "BILL-003"},
 ]
 
-from flask import redirect
-
 @app.route('/')
 def home():
     return redirect('/bills')
 
-
-# On server 5001
 @app.route('/bills', methods=['GET'])
 def get_bills():
     return jsonify(bills), 200
@@ -48,7 +44,7 @@ def process_payment():
             if result.is_success():
                 payment_details = result.body
                 notify_api_gateway(payment_details)
-                return redirect('https://biller-api.onrender.com/make_payment?bill_id={}&payment_id={}'.format(bill_id, payment_id))
+                return redirect('https://payment-gatewayapi.onrender.com/merchant_approval?payment_id={}&bill_id={}'.format(payment_id, bill_id))
             elif result.is_error():
                 return jsonify({"error": "Failed to retrieve payment details: " + str(result.errors)}), 400
         else:
@@ -61,14 +57,14 @@ def process_payment():
             result = client.payments.get_payment(payment_id)
             if result.is_success():
                 payment_details = result.body
-                return redirect('https://biller-api.onrender.com/make_payment?bill_id={}&payment_id={}'.format(bill_id, payment_id))
+                return redirect('https://payment-gatewayapi.onrender.com/merchant_approval?payment_id={}&bill_id={}'.format(payment_id, bill_id))
             elif result.is_error():
                 return jsonify({"error": "Failed to retrieve payment details: " + str(result.errors)}), 400
         else:
             return jsonify({"error": "Payment ID not provided"}), 400
 
 def notify_api_gateway(payment_info):
-    api_gateway_url = 'https://payment-gateway-api.onrender.com/merchant_approval'
+    api_gateway_url = 'https://payment-gatewayapi.onrender.com/merchant_approval'
     notification_data = {
         'payment_id': payment_info['payment']['id'],
         'amount': payment_info['payment']['amount_money']['amount'],
